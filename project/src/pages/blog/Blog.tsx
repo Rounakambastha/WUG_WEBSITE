@@ -88,33 +88,38 @@ const Blog: React.FC = () => {
           </div>
         ) : (
           <div className="grid gap-8 md:grid-cols-2">
-            {blogs.map((blog) => (
-              <div
-                key={blog._id}
-                className="bg-white dark:bg-dark-surface border rounded-2xl p-4 shadow hover:shadow-lg transition"
-              >
-                <img
-                  src={blog.mainImage?.asset?.url}
-                  alt={blog.title?.[lang] || blog.title.en || 'Blog image'}
-                  className="w-full h-48 object-cover rounded-xl mb-4"
-                />
-                <h2 className="text-xl font-semibold mb-2">
-                  {blog.title?.[lang] || blog.title.en}
-                </h2>
-                <p className="text-sm text-gray-500 mb-2">
-                  {new Date(blog.publishedAt).toLocaleDateString()}
-                </p>
-                <p className="mb-4">
-                  {blog.excerpt?.[lang] || blog.excerpt.en}
-                </p>
-                <Link
-                  to={`/blog/${blog.slug.current}`}
-                  className="text-blue-500 hover:underline font-medium"
+            {blogs.map((blog) => {
+              const displayTitle = lang === 'hi' && blog.title_hi ? blog.title_hi : blog.title;
+              const displayExcerpt = lang === 'hi' && blog.excerpt_hi ? blog.excerpt_hi : blog.excerpt;
+
+              return (
+                <div
+                  key={blog._id}
+                  className="bg-white dark:bg-dark-surface border rounded-2xl p-4 shadow hover:shadow-lg transition"
                 >
-                  {t('blog.readMore')}
-                </Link>
-              </div>
-            ))}
+                  <img
+                    src={blog.coverImage?.asset?.url}
+                    alt={displayTitle || 'Blog image'}
+                    className="w-full h-48 object-cover rounded-xl mb-4"
+                  />
+                  <h2 className="text-xl font-semibold mb-2">
+                    {displayTitle}
+                  </h2>
+                  <p className="text-sm text-gray-500 mb-2">
+                    {new Date(blog.publishedAt).toLocaleDateString()}
+                  </p>
+                  <p className="mb-4">
+                    {displayExcerpt}
+                  </p>
+                  <Link
+                    to={`/blog/${blog.slug.current}`}
+                    className="text-primary-500 hover:underline font-medium"
+                  >
+                    {t('blog.readMore')}
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         )}
       </motion.div>
