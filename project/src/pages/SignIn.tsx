@@ -314,7 +314,7 @@ const SignIn: React.FC = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = validateForm();
 
@@ -326,11 +326,15 @@ const SignIn: React.FC = () => {
       return;
     }
 
-    console.log('Sign in attempt:', formData);
-    login(formData.email);
-    const redirect = localStorage.getItem('redirectAfterLogin') || '/';
-    localStorage.removeItem('redirectAfterLogin');
-    navigate(redirect);
+    try {
+      await login(formData.email, formData.password);
+      const redirect = localStorage.getItem('redirectAfterLogin') || '/';
+      localStorage.removeItem('redirectAfterLogin');
+      navigate(redirect);
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      setErrors({ email: t('signin.errors.failedLogin', 'Failed to sign in. Please check your credentials.') });
+    }
   };
 
   const handleSocialLogin = (provider: string) => {

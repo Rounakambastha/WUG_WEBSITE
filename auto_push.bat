@@ -14,7 +14,7 @@ for /f "tokens=1-2 delims=/:" %%a in ('time /t') do (set mytime=%%a%%b)
 set timestamp=%mydate%_%mytime%
 
 git commit -m "Auto commit end of day: %timestamp%"
-git push origin main
+git push origin master
 
 :end
 echo Done

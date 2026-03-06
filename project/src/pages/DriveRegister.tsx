@@ -53,7 +53,7 @@
 //   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
 //     const { name, value } = e.target;
 //     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
 //     // Clear error when user starts typing
 //     if (errors[name]) {
 //       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -62,40 +62,40 @@
 
 //   const validateForm = () => {
 //     const newErrors: { [key: string]: string } = {};
-    
+
 //     if (!formData.name.trim()) {
 //       newErrors.name = 'Full name is required';
 //     }
-    
+
 //     if (!formData.email) {
 //       newErrors.email = 'Email is required';
 //     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
 //       newErrors.email = 'Please enter a valid email';
 //     }
-    
+
 //     if (!formData.phone) {
 //       newErrors.phone = 'Phone number is required';
 //     }
-    
+
 //     if (!formData.areaOfInterest) {
 //       newErrors.areaOfInterest = 'Please select an area of interest';
 //     }
-    
+
 //     return newErrors;
 //   };
 
 //   const handleSubmit = (e: React.FormEvent) => {
 //     e.preventDefault();
 //     const newErrors = validateForm();
-    
+
 //     if (Object.keys(newErrors).length > 0) {
 //       setErrors(newErrors);
 //       return;
 //     }
-    
+
 //     console.log('Drive registration:', formData);
 //     setIsSubmitted(true);
-    
+
 //     // Reset form after 3 seconds
 //     setTimeout(() => {
 //       setIsSubmitted(false);
@@ -168,12 +168,12 @@
 //                   </span>
 //                 </div>
 //               </div>
-              
+
 //               <div className="p-6">
 //                 <h2 className="font-heading font-bold text-2xl text-secondary-500 dark:text-dark-text mb-4">
 //                   {upcomingDrive.title}
 //                 </h2>
-                
+
 //                 <div className="space-y-3 mb-6">
 //                   <div className="flex items-center text-gray-600 dark:text-gray-300">
 //                     <Calendar size={20} className="mr-3 text-primary-500" />
@@ -436,6 +436,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Users, Clock, CheckCircle, Tag, Phone, Mail, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase/config';
 import Button from '../components/UI/Button';
 
 const DriveRegister: React.FC = () => {
@@ -484,26 +486,37 @@ const DriveRegister: React.FC = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    console.log('Drive registration:', formData);
-    setIsSubmitted(true);
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        areaOfInterest: '',
-        experience: '',
-        availability: '',
+
+    try {
+      await addDoc(collection(db, 'drive_registrations'), {
+        ...formData,
+        driveId: 'upcoming_drive_placeholder', // Static currently, will be dynamic from CMS later
+        createdAt: new Date()
       });
-    }, 3000);
+      console.log('Drive registration saved to Firestore!');
+      setIsSubmitted(true);
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          areaOfInterest: '',
+          experience: '',
+          availability: '',
+        });
+      }, 3000);
+    } catch (error) {
+      console.error('Error adding document: ', error);
+      alert('Failed to register due to a database error. Please try again.');
+    }
   };
 
   const containerVariants = {
@@ -657,9 +670,8 @@ const DriveRegister: React.FC = () => {
                             value={formData[field as keyof typeof formData]}
                             onChange={handleInputChange}
                             placeholder={t(`drive.placeholders.${field}`)}
-                            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-dark-bg text-secondary-500 dark:text-dark-text transition-all duration-200 ${
-                              errors[field] ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                            }`}
+                            className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-dark-bg text-secondary-500 dark:text-dark-text transition-all duration-200 ${errors[field] ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                              }`}
                           />
                         </div>
                         {errors[field] && <p className="mt-1 text-sm text-red-500">{errors[field]}</p>}
@@ -675,9 +687,8 @@ const DriveRegister: React.FC = () => {
                         name="areaOfInterest"
                         value={formData.areaOfInterest}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-dark-bg text-secondary-500 dark:text-dark-text ${
-                          errors.areaOfInterest ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                        }`}
+                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-dark-bg text-secondary-500 dark:text-dark-text ${errors.areaOfInterest ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                          }`}
                       >
                         <option value="">{t('drive.placeholders.areaOfInterest')}</option>
                         {areasOfInterest.map((area: string) => (
