@@ -21,7 +21,7 @@
 //       ...prev,
 //       [name]: type === 'checkbox' ? checked : value,
 //     }));
-    
+
 //     // Clear error when user starts typing
 //     if (errors[name]) {
 //       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -30,26 +30,26 @@
 
 //   const validateForm = () => {
 //     const newErrors: { [key: string]: string } = {};
-    
+
 //     if (!formData.email) {
 //       newErrors.email = 'Email is required';
 //     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
 //       newErrors.email = 'Please enter a valid email';
 //     }
-    
+
 //     if (!formData.password) {
 //       newErrors.password = 'Password is required';
 //     } else if (formData.password.length < 6) {
 //       newErrors.password = 'Password must be at least 6 characters';
 //     }
-    
+
 //     return newErrors;
 //   };
 
 //   const handleSubmit = (e: React.FormEvent) => {
 //     e.preventDefault();
 //     const newErrors = validateForm();
-    
+
 //     if (Object.keys(newErrors).length > 0) {
 //       setErrors(newErrors);
 //       // Add shake animation for errors
@@ -58,7 +58,7 @@
 //       setTimeout(() => form.classList.remove('animate-shake'), 500);
 //       return;
 //     }
-    
+
 //     console.log('Sign in attempt:', formData);
 //     // Handle sign in logic here
 //   };
@@ -123,7 +123,7 @@
 //               <Chrome size={20} className="mr-3 text-red-500" />
 //               <span className="font-medium">Continue with Google</span>
 //             </button>
-            
+
 //             <button
 //               onClick={() => handleSocialLogin('Facebook')}
 //               className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 group"
@@ -132,7 +132,7 @@
 //               <Facebook size={20} className="mr-3 text-blue-600" />
 //               <span className="font-medium">Continue with Facebook</span>
 //             </button>
-            
+
 //             <button
 //               onClick={() => handleSocialLogin('Phone')}
 //               className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 group"
@@ -264,13 +264,16 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Chrome, Facebook, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/UI/Button';
 
 const SignIn: React.FC = () => {
   const { t } = useTranslation();
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -324,6 +327,10 @@ const SignIn: React.FC = () => {
     }
 
     console.log('Sign in attempt:', formData);
+    login(formData.email);
+    const redirect = localStorage.getItem('redirectAfterLogin') || '/';
+    localStorage.removeItem('redirectAfterLogin');
+    navigate(redirect);
   };
 
   const handleSocialLogin = (provider: string) => {

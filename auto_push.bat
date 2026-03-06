@@ -1,21 +1,21 @@
 @echo off
-echo Starting auto-push pipeline...
+cd /d C:\Users\Ronak\Desktop\WEBSITE
 
-:: Stage all changes
 git add .
 
-:: Create a commit with the current date and time
+git diff --cached --quiet
+if errorlevel 1 goto has_changes
+echo No changes to commit
+goto end
+
+:has_changes
 for /f "tokens=2-4 delims=/ " %%a in ('date /t') do (set mydate=%%c-%%a-%%b)
 for /f "tokens=1-2 delims=/:" %%a in ('time /t') do (set mytime=%%a%%b)
 set timestamp=%mydate%_%mytime%
 
-git commit -m "Auto-commit end of day work: %timestamp%"
-
-:: Push to the main branch
+git commit -m "Auto commit end of day: %timestamp%"
 git push origin main
 
-echo.
-echo ==========================================================
-echo Code successfully pushed to GitHub!
-echo ==========================================================
+:end
+echo Done
 pause

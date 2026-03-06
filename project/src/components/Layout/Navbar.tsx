@@ -62,7 +62,7 @@
 //   const handleUpcomingDriveClick = () => {
 //     // Check if user is logged in (placeholder logic)
 //     const isLoggedIn = false; // This would come from your auth context
-    
+
 //     if (!isLoggedIn) {
 //       // Store intended destination and redirect to login
 //       localStorage.setItem('redirectAfterLogin', '/drive-register');
@@ -122,7 +122,7 @@
 //                 )}
 //               </Link>
 //             ))}
-            
+
 //             {/* Upcoming Drive with Enhanced Badge */}
 //             <button
 //               onClick={handleUpcomingDriveClick}
@@ -303,8 +303,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon, Globe, AlertCircle, Menu, X } from 'lucide-react';
+import { Sun, Moon, Globe, AlertCircle, Menu, X, Settings } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import CountdownTimer from '../UI/CountdownTimer';
 
@@ -313,6 +314,7 @@ const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { isLoggedIn, userRole, userEmail, logout } = useAuth();
   const { t, i18n } = useTranslation();
 
   const nextEventDate = '2024-02-15T09:00:00';
@@ -357,7 +359,6 @@ const Navbar: React.FC = () => {
   ];
 
   const handleUpcomingDriveClick = () => {
-    const isLoggedIn = false;
     if (!isLoggedIn) {
       localStorage.setItem('redirectAfterLogin', '/drive-register');
       window.location.href = '/signin';
@@ -373,11 +374,10 @@ const Navbar: React.FC = () => {
 
   return (
     <motion.nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
           ? 'bg-white/95 dark:bg-dark-bg/95 backdrop-blur-sm shadow-lg'
           : 'bg-transparent'
-      }`}
+        }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
@@ -399,11 +399,10 @@ const Navbar: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`relative font-medium transition-colors duration-200 ${
-                  location.pathname === item.path
+                className={`relative font-medium transition-colors duration-200 ${location.pathname === item.path
                     ? 'text-primary-500'
                     : 'text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500'
-                }`}
+                  }`}
               >
                 {item.label}
                 {location.pathname === item.path && (
@@ -453,124 +452,146 @@ const Navbar: React.FC = () => {
             </button>
 
             <div className="flex items-center space-x-2">
-              {authItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
-                    item.path === '/register'
-                      ? 'bg-primary-500 text-white hover:bg-primary-600 hover:scale-105'
-                      : 'text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {isLoggedIn ? (
+                <>
+                  {userRole === 'admin' && (
+                    <a
+                      href="http://localhost:3333" // Update this to production Sanity URL later
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 px-3 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700 transition"
+                    >
+                      <Settings size={16} />
+                      Manage Content
+                    </a>
+                  )}
+                  <button
+                    onClick={logout}
+                    className="px-4 py-2 text-secondary-500 hover:text-primary-500 font-medium transition"
+                  >
+                    Logout
+                  </button>
+                  <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold uppercase">
+                    {userEmail?.charAt(0)}
+                  </div>
+                </>
+              ) : (
+                authItems.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${item.path === '/register'
+                        ? 'bg-primary-500 text-white hover:bg-primary-600 hover:scale-105'
+                        : 'text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500'
+                      }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         </div>
 
         {/* Mobile Navbar */}
-<div className="md:hidden">
-  <div className="flex justify-between items-center h-14 py-3">
-    <Link to="/" className="flex items-center space-x-2">
-      <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
-        <span className="text-white font-bold text-sm">W</span>
-      </div>
-      <span className="font-heading font-bold text-sm text-secondary-500 dark:text-dark-text">
-        Wake Up Guys®
-      </span>
-    </Link>
+        <div className="md:hidden">
+          <div className="flex justify-between items-center h-14 py-3">
+            <Link to="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">W</span>
+              </div>
+              <span className="font-heading font-bold text-sm text-secondary-500 dark:text-dark-text">
+                Wake Up Guys®
+              </span>
+            </Link>
 
-    <div className="flex items-center space-x-2">
-      <button
-        onClick={() => i18n.changeLanguage(i18n.language === 'en' ? 'hi' : 'en')}
-        className="flex items-center space-x-1 px-2 py-1 rounded-md text-sm text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500 transition-colors"
-      >
-        <Globe size={14} />
-        <span className="uppercase font-medium text-xs">{i18n.language}</span>
-      </button>
-
-      <button
-        onClick={toggleTheme}
-        className="p-1 rounded-md text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500 transition-colors"
-      >
-        {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-      </button>
-
-      <button
-        onClick={toggleMobileMenu}
-        className="p-2 rounded-md text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500 transition-colors"
-        aria-label="Toggle mobile menu"
-      >
-        {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
-    </div>
-  </div>
-
-  <AnimatePresence>
-    {isMobileMenuOpen && (
-      <motion.div
-        className="absolute top-full left-0 right-0 bg-white dark:bg-dark-bg shadow-lg border-t border-gray-200 dark:border-gray-700"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.2 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="px-4 py-6 space-y-4">
-          {/* Navigation Links */}
-          <div className="space-y-3">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                  location.pathname === item.path
-                    ? 'text-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                    : 'text-secondary-500 hover:text-primary-500 hover:bg-gray-50 dark:text-dark-text dark:hover:text-primary-500 dark:hover:bg-gray-800'
-                }`}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => i18n.changeLanguage(i18n.language === 'en' ? 'hi' : 'en')}
+                className="flex items-center space-x-1 px-2 py-1 rounded-md text-sm text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500 transition-colors"
               >
-                {item.label}
-              </Link>
-            ))}
-          </div>
+                <Globe size={14} />
+                <span className="uppercase font-medium text-xs">{i18n.language}</span>
+              </button>
 
-          {/* Upcoming Drive */}
-          <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-            <button
-              onClick={handleUpcomingDriveClick}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg text-sm font-medium shadow-lg"
-            >
-              <AlertCircle size={16} className="animate-pulse" />
-              <span>{t('nav.upcomingDrive')}</span>
-              <CountdownTimer targetDate={nextEventDate} className="text-xs" />
-            </button>
-          </div>
+              <button
+                onClick={toggleTheme}
+                className="p-1 rounded-md text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500 transition-colors"
+              >
+                {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+              </button>
 
-          {/* Auth Links */}
-          <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-2 gap-3">
-              {authItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`px-4 py-3 rounded-md text-sm font-medium text-center transition-all ${
-                    item.path === '/register'
-                      ? 'bg-primary-500 text-white hover:bg-primary-600'
-                      : 'border border-gray-300 dark:border-gray-600 text-secondary-500 hover:text-primary-500 hover:border-primary-500 dark:text-dark-text dark:hover:text-primary-500'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              <button
+                onClick={toggleMobileMenu}
+                className="p-2 rounded-md text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500 transition-colors"
+                aria-label="Toggle mobile menu"
+              >
+                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
             </div>
           </div>
+
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <motion.div
+                className="absolute top-full left-0 right-0 bg-white dark:bg-dark-bg shadow-lg border-t border-gray-200 dark:border-gray-700"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="px-4 py-6 space-y-4">
+                  {/* Navigation Links */}
+                  <div className="space-y-3">
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${location.pathname === item.path
+                            ? 'text-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                            : 'text-secondary-500 hover:text-primary-500 hover:bg-gray-50 dark:text-dark-text dark:hover:text-primary-500 dark:hover:bg-gray-800'
+                          }`}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+
+                  {/* Upcoming Drive */}
+                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={handleUpcomingDriveClick}
+                      className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg text-sm font-medium shadow-lg"
+                    >
+                      <AlertCircle size={16} className="animate-pulse" />
+                      <span>{t('nav.upcomingDrive')}</span>
+                      <CountdownTimer targetDate={nextEventDate} className="text-xs" />
+                    </button>
+                  </div>
+
+                  {/* Auth Links */}
+                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-2 gap-3">
+                      {authItems.map((item) => (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          className={`px-4 py-3 rounded-md text-sm font-medium text-center transition-all ${item.path === '/register'
+                              ? 'bg-primary-500 text-white hover:bg-primary-600'
+                              : 'border border-gray-300 dark:border-gray-600 text-secondary-500 hover:text-primary-500 hover:border-primary-500 dark:text-dark-text dark:hover:text-primary-500'
+                            }`}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </motion.div>
-    )}
-  </AnimatePresence>
-</div>
 
       </div>
     </motion.nav>

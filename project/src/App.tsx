@@ -15,29 +15,33 @@ import SignIn from './pages/SignIn';
 import Register from './pages/Register';
 import DriveRegister from './pages/DriveRegister';
 
+import { AuthProvider } from './contexts/AuthContext';
+
 function App() {
   return (
     <ThemeProvider>
-      <Router>
-        <div className="min-h-screen bg-white dark:bg-dark-bg text-secondary-500 dark:text-dark-text">
-          <Navbar />
-          <main>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/gallery" element={<Gallery />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/volunteer" element={<Volunteer />} />
-              <Route path="/donate" element={<Donate />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/drive-register" element={<DriveRegister />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </Router>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-white dark:bg-dark-bg text-secondary-500 dark:text-dark-text">
+            <Navbar />
+            <main>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/gallery" element={<Gallery />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/volunteer" element={<Volunteer />} />
+                <Route path="/donate" element={<Donate />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/drive-register" element={<DriveRegister />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
