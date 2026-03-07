@@ -14,6 +14,7 @@ import Contact from './pages/Contact';
 import SignIn from './pages/SignIn';
 import Register from './pages/Register';
 import DriveRegister from './pages/DriveRegister';
+import AdminDashboard from './pages/AdminDashboard';
 
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -36,6 +37,7 @@ function App() {
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/drive-register" element={<DriveRegister />} />
+                <Route path="/admin" element={<AdminDashboard />} />
               </Routes>
             </main>
             <Footer />

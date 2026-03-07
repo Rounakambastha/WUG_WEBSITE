@@ -7,12 +7,12 @@ import { getFirestore } from "firebase/firestore";
 // Your web app's Firebase configuration
 // Replace these with the actual values from your Firebase Console
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    apiKey: "YOUR_API_KEY_HERE",
+    authDomain: "wakeupguys-a4d4e.firebaseapp.com",
+    projectId: "wakeupguys-a4d4e",
+    storageBucket: "wakeupguys-a4d4e.firebasestorage.app",
     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    appId: "YOUR_APP_ID_HERE"
 };
 
 // Initialize Firebase

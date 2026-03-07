@@ -118,7 +118,7 @@
 //             Witness the positive change we're creating together in communities across the globe. 
 //             Each image tells a story of hope, transformation, and collective impact.
 //           </p>
-          
+
 //           {/* CMS Label */}
 //           <div className="inline-flex items-center px-4 py-2 bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300 rounded-full text-sm font-medium">
 //             <Tag size={16} className="mr-2" />
@@ -150,7 +150,7 @@
 //                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
 //                   <ZoomIn size={32} className="text-white" />
 //                 </div>
-                
+
 //                 {/* Tag */}
 //                 {image.tag && (
 //                   <div className="absolute top-4 right-4">
@@ -160,7 +160,7 @@
 //                   </div>
 //                 )}
 //               </div>
-              
+
 //               <div className="p-4">
 //                 <h3 className="font-semibold text-lg text-secondary-500 dark:text-dark-text">
 //                   {image.title}
@@ -216,90 +216,49 @@
 // };
 
 // export default Gallery;
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { X, ZoomIn, Tag } from 'lucide-react';
+import { X, ZoomIn, Tag, Loader } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { fetchGallery, GalleryEntry } from '../lib/sanity/fetchGallery';
 
-interface GalleryImage {
-  id: number;
-  src: string;
-  alt: string;
-  title: string;
-  tag?: string;
-}
 
 const Gallery: React.FC = () => {
-  const { t } = useTranslation();
-  const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
-  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+  const { t, i18n } = useTranslation();
+  const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
+  const [selectedImage, setSelectedImage] = useState<GalleryEntry | null>(null);
+  const [galleryImages, setGalleryImages] = useState<GalleryEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const galleryImages: GalleryImage[] = [
-    {
-      id: 1,
-      src: 'https://images.pexels.com/photos/6995301/pexels-photo-6995301.jpeg?auto=compress&cs=tinysrgb&w=800',
-      alt: t('gallery.alt.food'),
-      title: t('gallery.title.food'),
-      tag: t('gallery.tag.nutrition'),
-    },
-    {
-      id: 2,
-      src: 'https://images.pexels.com/photos/8613321/pexels-photo-8613321.jpeg?auto=compress&cs=tinysrgb&w=800',
-      alt: t('gallery.alt.education'),
-      title: t('gallery.title.education'),
-      tag: t('gallery.tag.education'),
-    },
-    {
-      id: 3,
-      src: 'https://images.pexels.com/photos/6995220/pexels-photo-6995220.jpeg?auto=compress&cs=tinysrgb&w=800',
-      alt: t('gallery.alt.cleanup'),
-      title: t('gallery.title.cleanup'),
-      tag: t('gallery.tag.environment'),
-    },
-    {
-      id: 4,
-      src: 'https://images.pexels.com/photos/7512066/pexels-photo-7512066.jpeg?auto=compress&cs=tinysrgb&w=800',
-      alt: t('gallery.alt.plantation'),
-      title: t('gallery.title.plantation'),
-      tag: t('gallery.tag.environment'),
-    },
-    {
-      id: 5,
-      src: 'https://images.pexels.com/photos/6995421/pexels-photo-6995421.jpeg?auto=compress&cs=tinysrgb&w=800',
-      alt: t('gallery.alt.water'),
-      title: t('gallery.title.water'),
-      tag: t('gallery.tag.water'),
-    },
-    {
-      id: 6,
-      src: 'https://images.pexels.com/photos/5940721/pexels-photo-5940721.jpeg?auto=compress&cs=tinysrgb&w=800',
-      alt: t('gallery.alt.healthcare'),
-      title: t('gallery.title.healthcare'),
-      tag: t('gallery.tag.healthcare'),
-    },
-    {
-      id: 7,
-      src: 'https://images.pexels.com/photos/6646918/pexels-photo-6646918.jpeg?auto=compress&cs=tinysrgb&w=800',
-      alt: t('gallery.alt.youth'),
-      title: t('gallery.title.youth'),
-      tag: t('gallery.tag.empowerment'),
-    },
-    {
-      id: 8,
-      src: 'https://images.pexels.com/photos/6646917/pexels-photo-6646917.jpeg?auto=compress&cs=tinysrgb&w=800',
-      alt: t('gallery.alt.community'),
-      title: t('gallery.title.community'),
-      tag: t('gallery.tag.community'),
-    },
-    {
-      id: 9,
-      src: 'https://images.pexels.com/photos/6646919/pexels-photo-6646919.jpeg?auto=compress&cs=tinysrgb&w=800',
-      alt: t('gallery.alt.skills'),
-      title: t('gallery.title.skills'),
-      tag: t('gallery.tag.education'),
-    },
-  ];
+  useEffect(() => {
+    const loadGallery = async () => {
+      try {
+        const data = await fetchGallery();
+        setGalleryImages(data);
+      } catch (error) {
+        console.error('Failed to load gallery:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadGallery();
+  }, []);
+
+  const getLocalizedTitle = (item: GalleryEntry) => {
+    return i18n.language === 'hi' && item.title_hi ? item.title_hi : item.title;
+  };
+
+  const getCategoryTag = (category?: string) => {
+    if (!category) return '';
+    // Map internal categories to translated/formatted strings if necessary
+    switch (category) {
+      case 'donation': return t('gallery.tag.donation', 'Donation');
+      case 'event': return t('gallery.tag.event', 'Event');
+      case 'volunteer': return t('gallery.tag.volunteer', 'Volunteer');
+      default: return t('gallery.tag.other', 'Activity');
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -342,48 +301,58 @@ const Gallery: React.FC = () => {
           </div>
         </div>
 
-        <motion.div
-          ref={ref}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate={inView ? 'visible' : 'hidden'}
-        >
-          {galleryImages.map((image) => (
-            <motion.div
-              key={image.id}
-              className="relative group cursor-pointer overflow-hidden rounded-xl bg-white dark:bg-dark-bg shadow-lg hover:shadow-xl transition-all duration-300"
-              variants={itemVariants}
-              whileHover={{ y: -5 }}
-              onClick={() => setSelectedImage(image)}
-            >
-              <div className="aspect-w-4 aspect-h-3 relative overflow-hidden">
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <ZoomIn size={32} className="text-white" />
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader size={40} className="text-primary-500 animate-spin" />
+          </div>
+        ) : galleryImages.length > 0 ? (
+          <motion.div
+            ref={ref}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            variants={containerVariants}
+            initial="hidden"
+            animate={inView ? 'visible' : 'hidden'}
+          >
+            {galleryImages.map((image) => (
+              <motion.div
+                key={image._id}
+                className="relative group cursor-pointer overflow-hidden rounded-xl bg-white dark:bg-dark-bg shadow-lg hover:shadow-xl transition-all duration-300"
+                variants={itemVariants}
+                whileHover={{ y: -5 }}
+                onClick={() => setSelectedImage(image)}
+              >
+                <div className="aspect-w-4 aspect-h-3 relative overflow-hidden">
+                  <img
+                    src={image.image?.asset?.url || 'https://via.placeholder.com/800x600?text=No+Image'}
+                    alt={getLocalizedTitle(image)}
+                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <ZoomIn size={32} className="text-white" />
+                  </div>
+
+                  {image.category && (
+                    <div className="absolute top-4 right-4">
+                      <span className="px-3 py-1 bg-white/90 dark:bg-dark-bg/90 text-secondary-500 dark:text-dark-text rounded-full text-xs font-medium backdrop-blur-sm">
+                        {getCategoryTag(image.category)}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                {image.tag && (
-                  <div className="absolute top-4 right-4">
-                    <span className="px-3 py-1 bg-white/90 dark:bg-dark-bg/90 text-secondary-500 dark:text-dark-text rounded-full text-xs font-medium">
-                      {image.tag}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <div className="p-4">
-                <h3 className="font-semibold text-lg text-secondary-500 dark:text-dark-text">
-                  {image.title}
-                </h3>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg text-secondary-500 dark:text-dark-text">
+                    {getLocalizedTitle(image)}
+                  </h3>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <div className="text-center py-20">
+            <p className="text-gray-500 dark:text-gray-400">No gallery images found. Please add content in Sanity CMS.</p>
+          </div>
+        )}
       </motion.div>
 
       <AnimatePresence>
@@ -403,15 +372,15 @@ const Gallery: React.FC = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <img
-                src={selectedImage.src}
-                alt={selectedImage.alt}
-                className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+                src={selectedImage.image?.asset?.url || 'https://via.placeholder.com/800x600'}
+                alt={getLocalizedTitle(selectedImage)}
+                className="w-full h-auto max-h-[80vh] object-contain rounded-lg shadow-2xl"
               />
-              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-4 rounded-b-lg">
-                <h3 className="text-xl font-semibold mb-1">{selectedImage.title}</h3>
-                {selectedImage.tag && (
-                  <span className="inline-block px-2 py-1 bg-primary-500 text-white rounded text-sm">
-                    {selectedImage.tag}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-6 rounded-b-lg">
+                <h3 className="text-2xl font-semibold mb-2">{getLocalizedTitle(selectedImage)}</h3>
+                {selectedImage.category && (
+                  <span className="inline-block px-3 py-1 bg-primary-500 text-white rounded-full text-sm font-medium">
+                    {getCategoryTag(selectedImage.category)}
                   </span>
                 )}
               </div>

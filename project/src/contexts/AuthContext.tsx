@@ -4,6 +4,12 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
+    signInWithPopup,
+    GoogleAuthProvider,
+    FacebookAuthProvider,
+    RecaptchaVerifier,
+    signInWithPhoneNumber,
+    ConfirmationResult,
     User
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -17,6 +23,10 @@ interface AuthContextType {
     loading: boolean;
     login: (e: string, p: string) => Promise<void>;
     signup: (e: string, p: string, first: string, last: string) => Promise<void>;
+    loginWithGoogle: () => Promise<void>;
+    loginWithFacebook: () => Promise<void>;
+    setupRecaptcha: (containerId: string) => void;
+    signinWithPhone: (phoneNumber: string) => Promise<ConfirmationResult>;
     logout: () => Promise<void>;
 }
 
@@ -26,6 +36,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [userRole, setUserRole] = useState<'admin' | 'user' | null>(null);
     const [loading, setLoading] = useState(true);
+    const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -69,6 +80,48 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         });
     };
 
+    const ensureUserDocument = async (user: User) => {
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (!userDoc.exists()) {
+            await setDoc(userDocRef, {
+                firstName: user.displayName?.split(' ')[0] || '',
+                lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+                email: user.email || '',
+                phone: user.phoneNumber || '',
+                role: 'user',
+                createdAt: new Date()
+            });
+        }
+    };
+
+    const loginWithGoogle = async () => {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        await ensureUserDocument(result.user);
+    };
+
+    const loginWithFacebook = async () => {
+        const provider = new FacebookAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        await ensureUserDocument(result.user);
+    };
+
+    const setupRecaptcha = (containerId: string) => {
+        if (!recaptchaVerifier) {
+            const verifier = new RecaptchaVerifier(auth, containerId, {
+                size: 'invisible',
+            });
+            setRecaptchaVerifier(verifier);
+        }
+    };
+
+    const signinWithPhone = async (phoneNumber: string): Promise<ConfirmationResult> => {
+        if (!recaptchaVerifier) throw new Error("Recaptcha not initialized");
+        const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+        return confirmationResult;
+    };
+
     const logout = async () => {
         await signOut(auth);
     };
@@ -82,6 +135,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             loading,
             login,
             signup,
+            loginWithGoogle,
+            loginWithFacebook,
+            setupRecaptcha,
+            signinWithPhone,
             logout
         }}>
             {!loading && children}

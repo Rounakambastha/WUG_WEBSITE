@@ -303,7 +303,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon, Globe, AlertCircle, Menu, X, Settings } from 'lucide-react';
+import { Sun, Moon, Globe, AlertCircle, Menu, X, Settings, Shield } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -375,8 +375,8 @@ const Navbar: React.FC = () => {
   return (
     <motion.nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-          ? 'bg-white/95 dark:bg-dark-bg/95 backdrop-blur-sm shadow-lg'
-          : 'bg-transparent'
+        ? 'bg-white/95 dark:bg-dark-bg/95 backdrop-blur-sm shadow-lg'
+        : 'bg-transparent'
         }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -400,8 +400,8 @@ const Navbar: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 className={`relative font-medium transition-colors duration-200 ${location.pathname === item.path
-                    ? 'text-primary-500'
-                    : 'text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500'
+                  ? 'text-primary-500'
+                  : 'text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500'
                   }`}
               >
                 {item.label}
@@ -455,15 +455,24 @@ const Navbar: React.FC = () => {
               {isLoggedIn ? (
                 <>
                   {userRole === 'admin' && (
-                    <a
-                      href="http://localhost:3333" // Update this to production Sanity URL later
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-1 px-3 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700 transition"
-                    >
-                      <Settings size={16} />
-                      Manage Content
-                    </a>
+                    <>
+                      <Link
+                        to="/admin"
+                        className="flex items-center gap-1 px-3 py-2 bg-gray-800 text-white rounded-md text-sm font-medium hover:bg-gray-900 transition mr-2"
+                      >
+                        <Shield size={16} />
+                        Admin Dashboard
+                      </Link>
+                      <a
+                        href="http://localhost:3333" // Update this to production Sanity URL later
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 px-3 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700 transition"
+                      >
+                        <Settings size={16} />
+                        Manage Content
+                      </a>
+                    </>
                   )}
                   <button
                     onClick={logout}
@@ -481,8 +490,8 @@ const Navbar: React.FC = () => {
                     key={item.path}
                     to={item.path}
                     className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${item.path === '/register'
-                        ? 'bg-primary-500 text-white hover:bg-primary-600 hover:scale-105'
-                        : 'text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500'
+                      ? 'bg-primary-500 text-white hover:bg-primary-600 hover:scale-105'
+                      : 'text-secondary-500 hover:text-primary-500 dark:text-dark-text dark:hover:text-primary-500'
                       }`}
                   >
                     {item.label}
@@ -549,8 +558,8 @@ const Navbar: React.FC = () => {
                         key={item.path}
                         to={item.path}
                         className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${location.pathname === item.path
-                            ? 'text-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                            : 'text-secondary-500 hover:text-primary-500 hover:bg-gray-50 dark:text-dark-text dark:hover:text-primary-500 dark:hover:bg-gray-800'
+                          ? 'text-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                          : 'text-secondary-500 hover:text-primary-500 hover:bg-gray-50 dark:text-dark-text dark:hover:text-primary-500 dark:hover:bg-gray-800'
                           }`}
                       >
                         {item.label}
@@ -578,8 +587,8 @@ const Navbar: React.FC = () => {
                           key={item.path}
                           to={item.path}
                           className={`px-4 py-3 rounded-md text-sm font-medium text-center transition-all ${item.path === '/register'
-                              ? 'bg-primary-500 text-white hover:bg-primary-600'
-                              : 'border border-gray-300 dark:border-gray-600 text-secondary-500 hover:text-primary-500 hover:border-primary-500 dark:text-dark-text dark:hover:text-primary-500'
+                            ? 'bg-primary-500 text-white hover:bg-primary-600'
+                            : 'border border-gray-300 dark:border-gray-600 text-secondary-500 hover:text-primary-500 hover:border-primary-500 dark:text-dark-text dark:hover:text-primary-500'
                             }`}
                         >
                           {item.label}
