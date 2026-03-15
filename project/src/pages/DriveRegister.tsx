@@ -462,11 +462,12 @@ const DriveRegister: React.FC = () => {
     volunteersNeeded: 50,
     volunteersRegistered: 32,
     image: 'https://images.pexels.com/photos/6995301/pexels-photo-6995301.jpeg?auto=compress&cs=tinysrgb&w=800',
-    requirements: t('drive.requirements', { returnObjects: true }) as string[],
-    benefits: t('drive.benefits', { returnObjects: true }) as string[],
+    requirements: Array.isArray(t('drive.requirements', { returnObjects: true })) ? (t('drive.requirements', { returnObjects: true }) as string[]) : [],
+    benefits: Array.isArray(t('drive.benefits', { returnObjects: true })) ? (t('drive.benefits', { returnObjects: true }) as string[]) : [],
   };
 
-  const areasOfInterest = t('drive.interests', { returnObjects: true }) as string[];
+  const interestsRaw = t('drive.interests', { returnObjects: true });
+  const areasOfInterest = Array.isArray(interestsRaw) ? (interestsRaw as string[]) : [];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
